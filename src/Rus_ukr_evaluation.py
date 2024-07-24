@@ -68,9 +68,22 @@ if __name__ == "__main__":
         if (second_input in ru_equip_deaths_df.columns):
             auto_arima_call(ru_equip_deaths_df,f"{second_input} diff")
         if (second_input in ru_pers_deaths_df.columns):
-             auto_arima_call(ru_pers_deaths_df,f"{second_input} diff")
+            auto_arima_call(ru_pers_deaths_df,f"{second_input} diff")
 
 
     if user_input == "sarima":
-        pass
+        print("Ensure that you have run auto first!")
+        second_input = input("input column name")
+        if (second_input in ru_equip_deaths_df.columns):
+            sarima_gen(ru_equip_deaths_df,f"{second_input} diff")
+        if (second_input in ru_pers_deaths_df.columns):
+            sarima_gen(ru_pers_deaths_df,f"{second_input} diff")
+
+    if user_input == "trend":
+        trend_line_w_outliers(ru_equip_deaths_df, "vehicles and fuel tanks",draw_data=True, draw_trend=False )
+        trend_line_w_outliers(ru_equip_deaths_df, "tank",draw_data=True, draw_trend=False )
+        trend_line_w_outliers(ru_equip_deaths_df, "APC",draw_data=True, draw_trend=False )
+        trend_line_w_outliers(ru_equip_deaths_df, "field artillery",draw_data=True, draw_trend=False )
+        trend_line_w_outliers(ru_pers_deaths_df, "personnel",draw_data=True, draw_trend=False )
+
 

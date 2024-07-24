@@ -14,6 +14,7 @@ from datetime import datetime
 from scipy import stats
 from collections import defaultdict
 import pickle
+from pmdarima.arima import auto_arima
 
 def check_stationarity(timeseries): 
     # Perform the Dickey-Fuller test 
@@ -98,12 +99,12 @@ def trend_line_w_outliers(df_name, column_name, draw_data=False,color=("blue","y
                                                 (df_name["Int_month"] == 5)]
     plt.figure(figsize=(12, 6))
 
-    summer_std = ru_deaths_summerdf[f"{column_name}"].std()
-    fall_std = ru_deaths_falldf[f"{column_name}"].std()
-    winter_std = ru_deaths_winterdf[f"{column_name}"].std()
-    spring_std = ru_deaths_springdf[f"{column_name}"].std()
+    summer_std = ru_deaths_summerdf[f"{column_name} diff"].std()
+    fall_std = ru_deaths_falldf[f"{column_name} diff"].std()
+    winter_std = ru_deaths_winterdf[f"{column_name} diff"].std()
+    spring_std = ru_deaths_springdf[f"{column_name} diff"].std()
     if draw_data:
-        plt.plot(df_name["Dt_OBJ"],df_name[f"{column_name}"])
+        plt.plot(df_name["Dt_OBJ"],df_name[f"{column_name} diff"])
     
     print("Spring:")
     draw_trend_line(ru_deaths_springdf,column_name,color[0],draw_trend)
@@ -120,12 +121,12 @@ def draw_trend_line(df_name, column_name, color_name, draw_trend=True):
 
 
     yearly_data = df_name.groupby(df_name["Int_year"])
-    df_name_mean = df_name[f"{column_name}"].median()
+    df_name_mean = df_name[f"{column_name} diff"].median()
     
     for year, data in yearly_data:
         # print("yearly", year, data.head())
-        df_name_std = data[f"{column_name}"].std()
-        df_name_mean = data[f"{column_name}"].mean()
+        df_name_std = data[f"{column_name} diff"].std()
+        df_name_mean = data[f"{column_name} diff"].mean()
         # print(f"{year}:STD : {df_name_std}")
         # print(f"{year}:mean : {df_name_mean}")
         
@@ -133,16 +134,16 @@ def draw_trend_line(df_name, column_name, color_name, draw_trend=True):
         last_point = data.iloc[-1]
         if draw_trend:
             plt.plot([first_point["Dt_OBJ"], last_point["Dt_OBJ"]], 
-                    [first_point[f'{column_name}'], last_point[f'{column_name}']], 
+                    [first_point[f'{column_name} diff'], last_point[f'{column_name} diff']], 
                     marker='o', color=color_name)
         
         for points in range(len(data)):
             
-            if (data[f"{column_name}"].iloc[points] > (df_name_std * 2) + df_name_mean):
+            if (data[f"{column_name} diff"].iloc[points] > (df_name_std * 2) + df_name_mean):
                 #or (df_name[f"{column_name}"].iloc[points] < df_name_mean - df_name_std)
                 # print(" Outlier at ",data["Int_month"].iloc[points],  data[f"{column_name}"].iloc[points])
                 outlier_counter += 1
-                plt.plot(data["Dt_OBJ"].iloc[points],data[f"{column_name}"].iloc[points], marker='x',color="black")
+                plt.plot(data["Dt_OBJ"].iloc[points],data[f"{column_name} diff"].iloc[points], marker='x',color="black")
 
     
     plt.xlabel('Date')
@@ -151,6 +152,7 @@ def draw_trend_line(df_name, column_name, color_name, draw_trend=True):
     plt.legend()
     plt.grid(True)
     print(f"Total season outliers: {outlier_counter}")
+    plt.savefig(f"../images/RU_outliers_{column_name}.png")
 
 def seasonal_decomposition(df_name, column_name):
 
@@ -172,9 +174,9 @@ def auto_arima_call(df_name, column_name):
     tscsv = TimeSeriesSplit()
     for i, (train_index, test_index) in enumerate(tscsv.split(X)):
         X_train = df_name.iloc[train_index]
-        y_train = df_name.iloc[train_index]["APC diff"]
+        y_train = df_name.iloc[train_index][f"{column_name}"]
         X_test = df_name.iloc[test_index]
-        y_test = df_name.iloc[test_index]["APC diff"]
+        y_test = df_name.iloc[test_index][f"{column_name}"]
     
     Arima_model= auto_arima(y_train, start_p=1, 
                         start_q=1, 
@@ -184,7 +186,7 @@ def auto_arima_call(df_name, column_name):
                         start_Q=0, 
                         max_P=8, 
                         max_Q=8,
-                        m=30, 
+                        m=1, 
                         seasonal=True, 
                         trace=True, 
                         d=1, D=1, 
@@ -192,11 +194,11 @@ def auto_arima_call(df_name, column_name):
                         suppress_warnings=True, 
                         random_state = 20, 
                         n_fits=30)
-    with open('../data/arima.pkl', 'wb') as pkl:
+    with open(f'../data/{column_name}arima.pkl', 'wb') as pkl:
         pickle.dump(Arima_model, pkl)
     
 
-def sarima_gen():
-    with open('../data/arima.pkl', 'rb') as pkl:
-        pickle.dump(Arima_model, pkl)
+def sarima_gen(df_name, column_name, pred_len=120):
+    with open(f'../data/{column_name}arima.pkl', 'rb') as pkl:
+        pickle_preds = pickle.load(pkl).predict(n_periods=pred_len)
     
