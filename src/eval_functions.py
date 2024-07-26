@@ -116,6 +116,12 @@ def trend_line_w_outliers(df_name, column_name, draw_data=False,color=("blue","y
     draw_trend_line(ru_deaths_winterdf,column_name,color[3],draw_trend)
 
 def draw_trend_line(df_name, column_name, color_name, draw_trend=True):
+    '''
+    Draws the trend lines and counts outliers
+    args: dataframe, str, str, draw trend line boolean
+
+    note: this is not meant to be called directly by the user
+    '''
     #Attach december to the next year for plotting purposes
     outlier_counter = 0
 
@@ -155,6 +161,9 @@ def draw_trend_line(df_name, column_name, color_name, draw_trend=True):
     plt.savefig(f"../images/RU_outliers_{column_name}.png")
 
 def seasonal_decomposition(df_name, column_name):
+    '''
+    run the seasonal decomp for a given field in the dataframe
+    '''
 
     equip_analysis = df_name.loc[0::,["Dt_OBJ", f"{column_name} diff"]]
     equip_analysis.set_index("Dt_OBJ", inplace=True)
@@ -166,6 +175,12 @@ def seasonal_decomposition(df_name, column_name):
     return trend, seasonal, resid_season, decompose_result
 
 def auto_arima_call(df_name, column_name):
+    '''
+    use the autoarima library to find the ideal SARIMA model for the field.
+
+    This is very memory intensive. Try adjusting the min max manually below if you have issues
+    '''
+
     from sklearn.model_selection import TimeSeriesSplit
     from sklearn.metrics import mean_squared_error
 
@@ -199,11 +214,19 @@ def auto_arima_call(df_name, column_name):
     
 
 def sarima_gen(df_name, column_name, pred_len=120):
+    """
+    Actually runs the predictions from the already created pkl file.
+    This is separated to allieviate memory concerns with autoarima
+    
+    """
     with open(f'../data/{column_name}arima.pkl', 'rb') as pkl:
         pickle_preds = pickle.load(pkl).predict(n_periods=pred_len)
     return pickle_preds
     
 def test_train_split(df_name, column_name):
+    """
+    Calls and returns a time series split for model testing and training.
+    """
     from sklearn.model_selection import TimeSeriesSplit
     from sklearn.metrics import mean_squared_error
 

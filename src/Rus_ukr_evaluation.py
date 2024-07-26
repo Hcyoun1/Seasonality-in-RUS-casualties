@@ -56,6 +56,8 @@ if __name__ == "__main__":
 
     print("Initial cleaning of csv's done. enter diff for standard graphs,auto for auto arima,sarima for modeling, trend for trendlines")
     user_input = input()
+    # These are the input functionality calls for the py file
+    #this is done to avoid memory issues with autoarima
     if user_input == "diff":
          plot_diff_columns(ru_equip_deaths_df,"vehicles and fuel tanks")
          plot_diff_columns(ru_equip_deaths_df, "tank")
