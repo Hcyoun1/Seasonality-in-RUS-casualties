@@ -75,9 +75,17 @@ if __name__ == "__main__":
         print("Ensure that you have run auto first!")
         second_input = input("input column name")
         if (second_input in ru_equip_deaths_df.columns):
-            sarima_gen(ru_equip_deaths_df,f"{second_input} diff")
+            forecaster = sarima_gen(ru_equip_deaths_df,f"{second_input} diff")
+            y_train, y_test = test_train_split(ru_equip_deaths_df,f"{second_input} diff" )
         if (second_input in ru_pers_deaths_df.columns):
-            sarima_gen(ru_pers_deaths_df,f"{second_input} diff")
+            forecaster = sarima_gen(ru_pers_deaths_df,f"{second_input} diff")
+            y_train, y_test = test_train_split(ru_pers_deaths_df,f"{second_input} diff" )
+        
+        plt.plot()
+        y_train.plot.line()
+        plt.plot(forecaster.index,forecaster.values)
+        y_test.plot.line()
+        plt.savefig(f"../images/RU_SARIMAvActual_{second_input}.png")
 
     if user_input == "trend":
         trend_line_w_outliers(ru_equip_deaths_df, "vehicles and fuel tanks",draw_data=True, draw_trend=False )

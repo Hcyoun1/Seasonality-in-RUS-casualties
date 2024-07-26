@@ -147,8 +147,8 @@ def draw_trend_line(df_name, column_name, color_name, draw_trend=True):
 
     
     plt.xlabel('Date')
-    plt.ylabel('Value')
-    plt.title('Trend Lines for Each Month')
+    plt.ylabel('losses')
+    plt.title(f'Outliers for {column_name}')
     plt.legend()
     plt.grid(True)
     print(f"Total season outliers: {outlier_counter}")
@@ -186,7 +186,7 @@ def auto_arima_call(df_name, column_name):
                         start_Q=0, 
                         max_P=8, 
                         max_Q=8,
-                        m=1, 
+                        m=15,
                         seasonal=True, 
                         trace=True, 
                         d=1, D=1, 
@@ -201,4 +201,18 @@ def auto_arima_call(df_name, column_name):
 def sarima_gen(df_name, column_name, pred_len=120):
     with open(f'../data/{column_name}arima.pkl', 'rb') as pkl:
         pickle_preds = pickle.load(pkl).predict(n_periods=pred_len)
+    return pickle_preds
     
+def test_train_split(df_name, column_name):
+    from sklearn.model_selection import TimeSeriesSplit
+    from sklearn.metrics import mean_squared_error
+
+    #Split the train and test
+    X = df_name[f"{column_name}"]
+    tscsv = TimeSeriesSplit()
+    for i, (train_index, test_index) in enumerate(tscsv.split(X)):
+        X_train = df_name.iloc[train_index]
+        y_train = df_name.iloc[train_index][f"{column_name}"]
+        X_test = df_name.iloc[test_index]
+        y_test = df_name.iloc[test_index][f"{column_name}"]
+    return y_train, y_test
