@@ -51,15 +51,36 @@ check_stationarity(timeseries): Performs the Dickey-Fuller test to check station
 
 create_diff_columns(df_name, column_name): Creates columns for daily differences.
 
-
 plot_diff_columns(df_name, column_name): Plots difference columns.
 
-return_seasonal_dataframes(df_name, column_name): Returns seasonal dataframes.
+def return_seasonal_dataframes(df_name, column_name):
+    Only return season dataframes
+    Args: dataframe, str for column
+    returns four dataframes in order spring, summer, fall, winter
+
+def create_seasonal_comparisons(df_name, column_name):
+    # split the given dataframe into seasons, plot the dataframes
+    # run T-Tests against spring and print results
+
+def trend_line_w_outliers(df_name, column_name, draw_data=False,color=("blue","yellow","green","grey"), draw_trend=True ):  Creates outlier graph with options to show data, or trend lines from start of the month to the end
+
+def draw_trend_line(df_name, column_name, color_name, draw_trend=True):  called by trend_line_w_outliers. not user facing
+
+def seasonal_decomposition(df_name, column_name): run t-tests for the seasons and create a seasonal decomposition plot to show underlying trends
+
+def auto_arima_call(df_name, column_name):  Runs the pmdarima autoarima to find best fit for hyperparameters.  VERY memory intensive. sends the model to a pkl file
+
+def sarima_gen(df_name, column_name, pred_len=120):  runs the pkl model file and plots predictions
+
+def test_train_split(df_name, column_name):  internal call for train test time series split.
 
 # Rus_ukr_evaluation.py
 Loads and preprocesses equipment and personnel loss data.
 Creates difference columns and datetime-related columns.
 Visualizes various aspects of the data.
+
+# eval_functions.py
+holds all the function calls documented above
 
 # Examples
 Run the analysis and visualize the results:
