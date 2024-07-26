@@ -64,9 +64,27 @@ Visualizes various aspects of the data.
 # Examples
 Run the analysis and visualize the results:
 
+## Daily losses graph
+
+![diffed](images\RU_casualties_personnel.png)
+
+## Outliers graph
+
+![pers outlier](images\RU_outliers_personnel.png)
+
+
+## Trend line with seasonal decomp
+
+![trend decomp](images\ARTY_trend_line.png)
+
+## SARIMA Forecasting graph
+
+![sarima](images\SARIMA_forecast.png)
+
+
 
 # Troubleshooting
-
+ Biggest problem you will run into is not having enough memory to run auto-arima.  If thats the case, I recommend looking at the notebook and using the PAC and autocorrelation plots to fine tune the SARIMA model by hand. If this happens, you'll have to do it inside of the notebook, as current code version assumes that autoarima will run successfully and generate a PKL file for the model.
 
 # Limitations
 Obviously with a dataset that is in essence just losses over time, there's a strong limit to how valuable this is on its own.  UKR MOD sources are widely regarded by western governments to overestimate Russian losses, but without a similar daily or weekly casualty update dataset from a Western source, this is about as good as we can get in the fog of war.  The SARIMA auto-arima is VERY computationally expensive and requires a large amount of memory.  Personally i've seen okay looking results from a s value of 90 from the SARIMA model, but with how expensive the search algorithm is, you may get better results looking through the PAC and autocorrection plots and doing it by hand.
